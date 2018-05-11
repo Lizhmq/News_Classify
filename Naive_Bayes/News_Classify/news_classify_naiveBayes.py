@@ -66,7 +66,7 @@ class classifier:
 		return bp
 	def smoothprob(self, f, cat):
 		#return (self.fcount(f, cat)+1)/(self.catcount(cat)+len(self.cc))
-		return (self.fcount(f, cat)+1)/(self.catcount(cat)+2)
+		return (self.fcount(f, cat)+1)/(self.catcount(cat)+self.totalcount())
 class naivebayes(classifier):
 	def __init__(self, getfeatures):
 		classifier.__init__(self, getfeatures)
@@ -74,8 +74,8 @@ class naivebayes(classifier):
 		features = self.getfeatures(item)
 		p = 1;
 		for f in features:
+			# p *= self.smoothprob(f, cat)
 			p += math.log(self.smoothprob(f, cat))
-			#p *= self.weightedprob(f, cat)
 		return p
 	def prob(self, item, cat):
 		catprob = self.catcount(cat)/self.totalcount()
