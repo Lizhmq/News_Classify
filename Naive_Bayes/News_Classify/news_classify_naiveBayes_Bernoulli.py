@@ -21,44 +21,76 @@ def getwords(doc):
 
 class classifier:
 	def __init__(self, getfeatures):
-		# feature counts
+		# type-feature counts
 		self.fc = {}
-		# document counts
+		# type-document counts
 		self.cc = {}
+		# type-fcounts
+		self.tf = {}
+		# type-totalcounts
+		# self.totalfeatures = 0
 		self.getfeatures = getfeatures
-	def incf(self, f, cat):
-		self.fc.setdefault(f, {})
-		self.fc[f].setdefault(cat, 0)
-		self.fc[f][cat] += 1
-	def incc(self, cat):
+	def incfc(self, f, cat):
+		self.fc.setdefault(cat, {})
+		self.fc[cat].setdefault(f, 0)
+		self.fc[cat][f] += 1
+	def inccc(self, cat):
 		self.cc.setdefault(cat, 0)
 		self.cc[cat] += 1
+	def inctf(self, cat):
+		self.tf.setdefault(cat, 0)
+		self.tf[cat] += 1
+	def inctotalfeature(self):
+		self.totalfeatures += 1
+	# sum of features of a type
+	def typefeature(self, cat):
+		# self.fc.setdefault(cat, {})
+		# return sum(self.fc[cat].values())
+		return self.tf[cat]
+	# sum of features
+	def totalfeature(self):
+		# res = 0
+		# for i in self.fc.keys():
+		# 	res += sum(self.fc[i].values())
+		# return res
+		return self.totalfeatures
+	# number of feature in a type
 	def fcount(self, f, cat):
-		if f in self.fc and cat in self.fc[f]:
-			return self.fc[f][cat]
+		if cat in self.fc and f in self.fc[cat]:
+			return self.fc[cat][f]
 		else:
 			return 0.0
+	# number of documents in a type 
 	def catcount(self, cat):
 		if cat in self.cc:
 			return self.cc[cat]
 		else:
 			return 0.0
-	# count of documents
+	# number of documents
 	def totalcount(self):
 		return sum(self.cc.values())
-	# count of types
+	# list of types
 	def categories(self):
 		return self.cc.keys()
 	def train(self, item, cat):
 		features = self.getfeatures(item)
+		mem = {}
 		for f in features:
-			self.incf(f, cat)
-		self.incc(cat)
+			mem.setdefault(f, 0)
+			if mem[f] == 0:
+				self.incfc(f, cat)
+			mem[f] = 1
+			# self.inctotalfeature()
+			# self.inctf(cat)
+		self.inccc(cat)
 	def fprob(self, f, cat):
 		if (self.catcount(cat) == 0.0):
 			return 0.0
 		else:
-			return self.fcount(f, cat)/self.catcount(cat)
+			return self.fcount(f, cat)/self.typefeature(cat)
+	# count of kinds of words in cat 
+	def cfcount(self, cat):
+		return len(self.fc[cat])
 	def weightedprob(self, f, cat, prf, weight=1, ap=0.5):
 		basicprob = prf(f, cat)
 		totals = sum([self.fcount(f, c) for c in self.categories()])
@@ -66,6 +98,7 @@ class classifier:
 		return bp
 	def smoothprob(self, f, cat):
 		#return (self.fcount(f, cat)+1)/(self.catcount(cat)+len(self.cc))
+		#return (self.fcount(f, cat)+1)/(self.catcount(cat)+self.cfcount(cat))
 		return (self.fcount(f, cat)+1)/(self.catcount(cat)+2)
 class naivebayes(classifier):
 	def __init__(self, getfeatures):
@@ -74,8 +107,8 @@ class naivebayes(classifier):
 		features = self.getfeatures(item)
 		p = 1;
 		for f in features:
+			# p *= self.smoothprob(f, cat)
 			p += math.log(self.smoothprob(f, cat))
-			#p *= self.weightedprob(f, cat)
 		return p
 	def prob(self, item, cat):
 		catprob = self.catcount(cat)/self.totalcount()

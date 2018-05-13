@@ -26,3 +26,20 @@ naiveBayes_sklearn_Bernoulli.py
 
 修改了正则表达式，消除执行的时候的警告："news_classify_naiveBayes.py:10: FutureWarning: split() requires a non-empty pattern match.
   words = [s.lower() for s in splitter.split(doc) if len(s) >= 2 and len(s) < 20]"
+
+
+
+5.13
+分为多项式模型和伯努利模型
+fc[cat][feature]为类cat下单词feature的数目
+cc[cat]为类cat的文档数
+tf[cat]为类cat下单词总数
+totalfeatures为总单词数
+
+fcount返回fc[cat][f]
+catcount返回cc[cat]
+typefeature返回tf[cat]
+totalcount返回总文档数
+以上单词重复出现时是记录多次的，适用于多项式模型
+
+在伯努利模型中，对train函数进行一点修改，保证一个文档中相同的单词只被记录一次
