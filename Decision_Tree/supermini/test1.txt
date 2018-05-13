@@ -1,0 +1,10 @@
+[
+{'title':'青绿|蜷缩|沉闷|清晰', 'content':'', 'label':'good'},
+{'title':'乌黑|蜷缩|沉闷|清晰', 'content':'', 'label':'good'},
+{'title':'青绿|蜷缩|浊响|清晰', 'content':'', 'label':'good'},
+{'title':'乌黑|蜷缩|浊响|稍糊', 'content':'', 'label':'good'},
+{'title':'青绿|蜷缩|浊响|稍糊', 'content':'', 'label':'bad'},
+{'title':'青绿|蜷缩|浊响|稍糊', 'content':'', 'label':'bad'},
+{'title':'青绿|蜷缩|浊响|稍糊', 'content':'', 'label':'bad'},
+{'title':'青绿|蜷缩|浊响|稍糊', 'content':'', 'label':'bad'}
+]
