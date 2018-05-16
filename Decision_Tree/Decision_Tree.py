@@ -8,14 +8,13 @@ class Node(object):
     label是当前最多的类别
     attr_down指向子结点
     '''
-
     def __init__(self, attr_init=None, label_init=None, attr_down_init=[0, 0]):
         self.attr = attr_init
         self.label = label_init
         self.attr_down = attr_down_init
 
 
-def GenerateTree(train_datas, k):
+def GenerateTree(train_datas):
     new_node = Node(None, None, [0, 0])
     labels = [each[1] for each in train_datas]
     label_count = NodeLabel(labels)
@@ -25,18 +24,16 @@ def GenerateTree(train_datas, k):
     # end if there is no data
         if len(label_count) == 1 or len(labels) == 0:
             return new_node
-        if sum(label_count.values()) < 10:
-            new_node.attr = None
-            return new_node
+        # if sum(label_count.values()) < 10:
+        #     new_node.attr = None
+        #     return new_node
         new_node.attr = OptAttr_Ent(train_datas)
         data = [0, 0]
-        new_node_child = [0, 0]
         data[0], data[1] = divide(train_datas, new_node.attr)
-        labels_child = [0, 0]
         new_node.attr_down[0] = GenerateTree(
-            data[0], k + 1)
+            data[0])
         new_node.attr_down[1] = GenerateTree(
-            data[1], k + 1)
+            data[1])
     return new_node
 
 def PostPurn(root, valid_datas):

@@ -4,7 +4,7 @@ import math
 import random
 import re
 import Decision_Tree
-
+import pp
 
 def getwords(doc):
 	# print(doc)
@@ -55,29 +55,46 @@ def train_valid_test_data(data_):
 	test_data_ = data_[filesize2:]
 	return train_data_, valid_data_, test_data_
 
+def test_precision(data_, type_):
+	# Simple Decision_Tree
+	if type_ == 0:
+		train_data, test_data = train_test_data(data_)
+		root = Decision_Tree.GenerateTree(train_data)
+		pred_true = 0
+		for i in test_data:
+			if i[1] == Decision_Tree.Predict(root, i[0]):
+				pred_true += 1
+		print('type=0 ', pred_true/len(test_data))
+	# PrePurn Decision_Tree
+	elif type_ == 1:
+		train_data, valid_data, test_data = train_valid_test_data(data_)
+		root = Decision_Tree.GenerateTree_PrePurn(train_data, valid_data, 1)
+		pred_true = 0
+		for i in test_data:
+			if i[1] == Decision_Tree.Predict(root, i[0]):
+				pred_true += 1
+		print('type=1 ', pred_true/len(test_data))
+	# PostPurn Decision_True
+	else:
+		train_data, valid_data, test_data = train_valid_test_data(data_)
+		root = Decision_Tree.GenerateTree(train_data)
+		Decision_Tree.PostPurn(root, valid_data)
+		pred_true = 0
+		for i in test_data:
+			if i[1] == Decision_Tree.Predict(root, i[0]):
+				pred_true += 1
+		print('type=2 ', pred_true/len(test_data))
+
+
 if __name__ == '__main__':
+	
 	data = get_dataset()
-	train_data, test_data = train_test_data(data)
-	train_data1, valid_data1, test_data1 = train_valid_test_data(data)
-	root1 = Decision_Tree.GenerateTree(train_data, 1)
-	root2 = Decision_Tree.GenerateTree_PrePurn(train_data1, valid_data1, 1)
-	root3 = Decision_Tree.GenerateTree(train_data1, 1)
-	Decision_Tree.PostPurn(root3, valid_data1)
-
-	pred_true = 0
-	for i in test_data:
-		if i[1] == Decision_Tree.Predict(root1, i[0]):
-			pred_true += 1
-	print(pred_true/len(test_data))
-
-	pred_true = 0
-	for i in test_data1:
-		if i[1] == Decision_Tree.Predict(root2, i[0]):
-			pred_true += 1
-	print(pred_true/len(test_data1))
-
-	pred_true = 0
-	for i in test_data1:
-		if i[1] == Decision_Tree.Predict(root3, i[0]):
-			pred_true += 1
-	print(pred_true/len(test_data1))
+	ppservers=("node-1", "node-2", "node-3")
+	job_server = pp.Server(ppservers=ppservers)
+	f1 = job_server.submit(test_precision, (data, 0, ), (train_test_data, ), ("Decision_Tree", "re", "math", "random"))
+	f2 = job_server.submit(test_precision, (data, 1, ), (train_valid_test_data, ), ("Decision_Tree", "re", "math", "random"))
+	f3 = job_server.submit(test_precision, (data, 2, ), (train_valid_test_data, ), ("Decision_Tree", "re", "math", "random"))
+	f1()
+	f2()
+	f3()
+	
