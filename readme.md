@@ -3,4 +3,5 @@
   * 决策树
   * 朴素贝叶斯
   * Word2Vec&NN
+* 整合并在NewsClassifier中测试
 
