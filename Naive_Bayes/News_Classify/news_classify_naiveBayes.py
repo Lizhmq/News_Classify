@@ -20,11 +20,11 @@ def getwords(doc):
 	return set(words)
 
 class classifier:
-	def __init__(self, getfeatures):
+	def __init__(self, getfeatures, fc={}, cc={}):
 		# feature counts
-		self.fc = {}
+		self.fc = fc
 		# document counts
-		self.cc = {}
+		self.cc = cc
 		self.getfeatures = getfeatures
 	def incf(self, f, cat):
 		self.fc.setdefault(f, {})
@@ -66,21 +66,21 @@ class classifier:
 		return bp
 	def smoothprob(self, f, cat):
 		#return (self.fcount(f, cat)+1)/(self.catcount(cat)+len(self.cc))
-		return (self.fcount(f, cat)+1)/(self.catcount(cat)+2)
+		return (self.fcount(f, cat)+1)/(self.catcount(cat)+self.totalcount())
 class naivebayes(classifier):
-	def __init__(self, getfeatures):
-		classifier.__init__(self, getfeatures)
+	def __init__(self, getfeatures, fc={}, cc={}):
+		classifier.__init__(self, getfeatures, fc, cc)
 	def docprob(self, item, cat):
 		features = self.getfeatures(item)
 		p = 1;
 		for f in features:
+			# p *= self.smoothprob(f, cat)
 			p += math.log(self.smoothprob(f, cat))
-			#p *= self.weightedprob(f, cat)
 		return p
 	def prob(self, item, cat):
 		catprob = self.catcount(cat)/self.totalcount()
 		docprob = self.docprob(item, cat)
-		return docprob + math.log(catprob)
+		return docprob * catprob
 	def classify(self, item):
 		max = -1000000000000
 		probs = {}
@@ -120,17 +120,29 @@ def train_and_test_data(data_):
 	test_data_ = [each[0] for each in data_[filesize:]]
 	test_target_ = [each[1] for each in data_[filesize:]]
 	return train_data_, train_target_, test_data_, test_target_
-'''
-cl = classfier(getwords)
-sampletrain(cl)
-print(cl.fprob('python', 'bad'))
-'''
+
+def save_data(cl, path):
+	with open(path, 'w') as f:
+		f.write(str(cl.fc)+'\n'+str(cl.cc)+'\n')
+	f.close()
+
+def load_data(path):
+	with open(path) as f:
+		fc = eval(f.readline())
+		# f.readline()
+		cc = eval(f.readline())
+	cl = naivebayes(getwords, fc=fc, cc=cc)
+	return cl
 
 if __name__ == '__main__':
 	cl = naivebayes(getwords)
 	data = get_dataset()
 	train_data, train_target, test_data, test_target = train_and_test_data(data)
 	sampletrain(cl, train_data, train_target)
+	save_data(cl, 'data')
+	# cl = load_data('data')
+	for i in range(5):
+		print(test_data[i])
 	predict = []
 	for item in test_data:
 		predict.append((cl.classify(item)))
@@ -139,10 +151,7 @@ if __name__ == '__main__':
 		if left == right:
 			count += 1
 	print(count/len(test_target))
-'''
+
 else:
 	cl = naivebayes(getwords)
-	data = get_dataset()
-	train_data, train_target, test_data, test_target = train_and_test_data(data)
-	sampletrain(cl, train_data, train_target)
-'''
+	cl = load_data('data')
