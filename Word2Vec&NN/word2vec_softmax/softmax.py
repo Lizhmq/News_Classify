@@ -7,6 +7,7 @@ Created on Sat May 26 15:56:03 2018
 
 import numpy as np
 import random
+import keras
 from keras.utils import np_utils  
 from keras.models import Sequential  
 from keras.layers import Dense, Activation  
@@ -47,13 +48,15 @@ def BuildData():
 
 trainX,trainY,testX,testY = BuildData()
 
-model = Sequential()
-model.add(Dense(8,input_dim = 400,kernel_initializer='he_normal'))
-model.add(Activation('softmax'))
-model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics =['accuracy'])
-model.fit(trainX , trainY, epochs=10, batch_size=50, verbose=1)
+# model = Sequential()
+# model.add(Dense(8,input_dim = 400,kernel_initializer='he_normal'))
+# model.add(Activation('softmax'))
+# model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics =['accuracy'])
+# model.fit(trainX , trainY, epochs=10, batch_size=50, verbose=1)
+model = keras.models.load_model('model_softmax')
 loss, accuracy = model.evaluate(testX, testY)
 print('Test loss:', loss)
 print('Accuracy:', accuracy)
+# model.save('model_softmax')
 
 
