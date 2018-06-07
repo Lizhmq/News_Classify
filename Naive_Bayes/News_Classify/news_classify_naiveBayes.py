@@ -80,7 +80,7 @@ class naivebayes(classifier):
 	def prob(self, item, cat):
 		catprob = self.catcount(cat)/self.totalcount()
 		docprob = self.docprob(item, cat)
-		return docprob * catprob
+		return docprob + math.log(catprob)
 	def classify(self, item):
 		max = -1000000000000
 		probs = {}
